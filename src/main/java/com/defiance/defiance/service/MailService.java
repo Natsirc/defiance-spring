@@ -1,18 +1,17 @@
 package com.defiance.defiance.service;
 
 import com.defiance.defiance.dto.ContactRequest;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,15 +25,14 @@ public class MailService {
     private final String brevoApiBaseUrl;
 
     public MailService(
-        RestTemplateBuilder restTemplateBuilder,
         @Value("${spring.mail.from}") String fromAddress,
         @Value("${brevo.api.key}") String brevoApiKey,
         @Value("${brevo.api.base-url:https://api.brevo.com}") String brevoApiBaseUrl
     ) {
-        this.restTemplate = restTemplateBuilder
-            .setConnectTimeout(Duration.ofSeconds(5))
-            .setReadTimeout(Duration.ofSeconds(10))
-            .build();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(5000);
+        requestFactory.setReadTimeout(10000);
+        this.restTemplate = new RestTemplate(requestFactory);
         this.fromAddress = fromAddress;
         this.brevoApiKey = brevoApiKey;
         this.brevoApiBaseUrl = brevoApiBaseUrl;
