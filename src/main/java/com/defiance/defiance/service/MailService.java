@@ -1,13 +1,16 @@
 package com.defiance.defiance.service;
 
+import com.defiance.defiance.dto.ContactRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import com.defiance.defiance.dto.ContactRequest;
 
 @Service
 public class MailService {
+    private static final Logger logger = LoggerFactory.getLogger(MailService.class);
     private final JavaMailSender mailSender;
     private final String fromAddress;
 
@@ -48,6 +51,11 @@ public class MailService {
             "From: " + request.getName() + " <" + request.getEmail() + ">\n\n"
                 + request.getMessage()
         );
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (Exception ex) {
+            logger.error("Contact email send failed: {}", ex.getMessage(), ex);
+            throw ex;
+        }
     }
 }
